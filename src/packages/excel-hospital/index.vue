@@ -6,22 +6,26 @@
             </template>
         </SearchForm>
 
-        <a-table
-            v-if="isFillArr(state.tableList)"
-            style="width: 100%"
-            sticky
-            :scroll="{ x: 1500 }"
-            :columns="state.columns"
-            :data-source="dataSource"
-            :pagination="pagination"
-            :loading="state.loading"
-            @change="handleTableChange"
-        >
-        </a-table>
+        <template v-if="isFillArr(state.tableList)">
+            <div v-if="searchUserLength" class="result-user">
+                用户{{ searchUserLength }}人，成功解析{{ state.successUserLength || 0 }}人
+            </div>
+            <a-table
+                style="width: 100%"
+                sticky
+                :scroll="{ x: 1500 }"
+                :columns="state.columns"
+                :data-source="dataSource"
+                :pagination="pagination"
+                :loading="state.loading"
+                @change="handleTableChange"
+            >
+            </a-table>
+        </template>
     </LayoutWrap>
 </template>
 <script setup lang="jsx">
-import { reactive, computed, ref, watchEffect } from "vue"
+import { reactive, computed, ref } from "vue"
 import * as XlsxJsStyle from "xlsx-js-style"
 import SearchForm from "./comps/search-form.vue"
 import { message } from "ant-design-vue"
@@ -60,12 +64,13 @@ const initState = () => ({
     columns: [],
     columnsTitle: [],
     loading: false,
+    successUserLength: 0,
 })
 const SearchFormRef = ref()
 
 const state = reactive(initState())
 const hasUsers = computed(() => isFillArr(state.formState.users))
-
+const searchUserLength = computed(() => state.formState.users?.length)
 const { data: dataSource, run, current, pageSize, resetPage } = usePage(state)
 
 const pagination = computed(() => ({
@@ -73,6 +78,9 @@ const pagination = computed(() => ({
     current: current.value,
     pageSize: pageSize.value,
     showTotal: (total) => `共 ${total} 条`,
+    position: ["bottomCenter"],
+    showQuickJumper: true,
+    pageSizeOptions: ["10", "20", "50", "100", "150", "200"],
 }))
 
 const handleTableChange = (pag) => {
@@ -257,6 +265,7 @@ const genTableList = (list) => {
         }
     })
 
+    state.successUserLength = 0
     state.tableList = list
         .map((itemList, index) => {
             if (!isFillArr(itemList)) {
@@ -272,6 +281,7 @@ const genTableList = (list) => {
                 if (isHasCurUser && text && IphoneTitleArr.includes(title) && iphoneRegx.test(text)) {
                     text = handleIphone(text)
                     obj.isFlag = true
+                    state.successUserLength++
                 }
 
                 obj[title] = text
@@ -293,5 +303,11 @@ const genTableList = (list) => {
     display: flex;
     align-items: center;
     justify-content: space-between;
+}
+
+.result-user {
+    display: inline-block;
+    color: #1677ff;
+    margin-bottom: 10px;
 }
 </style>
