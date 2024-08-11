@@ -111,7 +111,7 @@ const submit = (formState) => {
                 message.warning("文件内容为空，请重新上传")
             }
 
-            resetPage()
+            run({ current: 1 })
         }
         fileReader.readAsBinaryString(excelFile)
     }

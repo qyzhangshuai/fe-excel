@@ -14,8 +14,8 @@ export default function usePage(state) {
     })
 
     const run = (page) => {
-        current.value = page.current;
-        pageSize.value = page.pageSize;
+        current.value = page.current || current.value;
+        pageSize.value = page.pageSize || pageSize.value;
     }
 
     const resetPage = () => {
