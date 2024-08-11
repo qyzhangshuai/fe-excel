@@ -12,5 +12,9 @@ export default defineConfig({
     },
     // 改成相对路径
     base: './',
+    // 输出目录为docs
+    build: {
+        outDir: './docs'
+    },
     plugins: [vue(), vueJsx()],
 })
