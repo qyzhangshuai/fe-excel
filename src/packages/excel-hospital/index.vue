@@ -8,7 +8,9 @@
 
         <template v-if="isFillArr(state.tableList)">
             <div v-if="searchUserLength" class="result-user">
-                用户{{ searchUserLength }}人，成功解析{{ state.successUserLength || 0 }}人
+                用户<span class="bold-text">{{ searchUserLength }}</span
+                >人，成功解析<span class="bold-text">{{ state.successUserNames.length || 0 }}</span
+                >人，分别为 <span class="bold-text">{{ state.successUserNames.join("、") }}</span>
             </div>
             <a-table
                 style="width: 100%"
@@ -64,7 +66,7 @@ const initState = () => ({
     columns: [],
     columnsTitle: [],
     loading: false,
-    successUserLength: 0,
+    successUserNames: [],
 })
 const SearchFormRef = ref()
 
@@ -265,7 +267,7 @@ const genTableList = (list) => {
         }
     })
 
-    state.successUserLength = 0
+    state.successUserNames = []
     state.tableList = list
         .map((itemList, index) => {
             if (!isFillArr(itemList)) {
@@ -276,12 +278,17 @@ const genTableList = (list) => {
             const userName = itemList[NameIndex]
             let isHasCurUser = hasUsers.value ? state.formState.users.includes(userName) : false
 
+            let isEmptyName = true
             columnsTitle.forEach((title, index) => {
                 let text = itemList[index]
+
                 if (isHasCurUser && text && IphoneTitleArr.includes(title) && iphoneRegx.test(text)) {
                     text = handleIphone(text)
                     obj.isFlag = true
-                    state.successUserLength++
+                    if (isEmptyName) {
+                        isEmptyName = false
+                        state.successUserNames.push(userName)
+                    }
                 }
 
                 obj[title] = text
@@ -309,5 +316,10 @@ const genTableList = (list) => {
     display: inline-block;
     color: #1677ff;
     margin-bottom: 10px;
+}
+
+.bold-text {
+    font-weight: bold;
+    color: red;
 }
 </style>
